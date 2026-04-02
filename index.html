@@ -112,16 +112,84 @@
   .mode-card p { font-size: 0.72rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
 
   #col-selector { width: 100%; margin-top: 6px; }
-  #col-selector h3 { font-size: 0.68rem; letter-spacing: 0.14em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
-  .col-grid { display: flex; flex-wrap: wrap; gap: 9px; }
-  .col-btn {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 15px; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; font-size: 0.95rem;
-    color: var(--text); transition: border-color 0.15s, background 0.15s; text-align: center;
+  #col-selector > h3 { font-size: 0.68rem; letter-spacing: 0.14em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; }
+
+  /* ── GOJŪON TABLE ── */
+  .col-table { width: 100%; border-collapse: collapse; }
+  .col-table-row {
+    display: flex; width: 100%; align-items: stretch;
+    border-bottom: 1px solid var(--border);
   }
-  .col-btn:hover { border-color: var(--accent); background: var(--surface2); color: var(--accent); }
-  .col-btn.selected { border-color: var(--accent); background: rgba(79,195,247,0.12); color: var(--accent); }
+  .col-table-row:last-child { border-bottom: none; }
+
+  /* row label (letter badge on left) */
+  .col-row-label {
+    width: 32px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--text-dim); font-family: 'Syne', sans-serif;
+    text-transform: uppercase; border-right: 1px solid var(--border);
+  }
+
+  /* clickable row button */
+  .col-btn {
+    flex: 1; position: relative;
+    background: var(--surface); border: none; cursor: pointer;
+    display: flex; align-items: center; padding: 10px 14px 10px 12px;
+    gap: 12px; transition: background 0.15s;
+    text-align: left; min-height: 52px;
+  }
+  .col-btn:hover { background: var(--surface2); }
+  .col-btn.selected { background: rgba(79,195,247,0.08); }
+  .col-btn.selected .col-row-name { color: var(--accent); }
+
+  /* row name (行 label) */
+  .col-row-name {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--text-muted); font-family: 'Syne', sans-serif;
+    text-transform: uppercase; min-width: 24px; flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  /* kana characters written top-to-bottom, right-to-left */
+  .col-kana-strip {
+    display: flex; flex-direction: row; gap: 4px;
+    flex-wrap: nowrap; align-items: center;
+    /* RTL order: rightmost char = first in array (a,i,u,e,o → あ left, お right reversed) */
+  }
+  .col-kana-char {
+    font-family: 'Noto Sans JP', sans-serif; font-size: 1.15rem; font-weight: 300;
+    color: var(--text); line-height: 1; transition: color 0.15s;
+  }
+  .col-btn.selected .col-kana-char { color: var(--accent); }
+
+  /* pair row: hiragana top, katakana bottom */
+  .col-kana-pair {
+    display: flex; flex-direction: column; gap: 3px; align-items: center;
+  }
+  .col-kana-pair .col-kana-char.kata {
+    color: var(--text-muted); font-size: 0.9rem;
+  }
+  .col-btn.selected .col-kana-pair .col-kana-char.kata { color: rgba(79,195,247,0.7); }
+
+  /* selected indicator stripe on left */
+  .col-btn::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent);
+    opacity: 0; transition: opacity 0.15s; border-radius: 0 2px 2px 0;
+  }
+  .col-btn.selected::before { opacity: 1; }
+
+  /* dominance dot (now inside col-btn) */
+  .col-dot {
+    position: absolute; top: 6px; right: 8px;
+    width: 7px; height: 7px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .col-dot.none  { background: #3a3a48; }
+  .col-dot.bad   { background: #f87171; }
+  .col-dot.mid   { background: #fbbf24; }
+  .col-dot.good  { background: #4ade80; }
 
   .back-link {
     font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.1em;
@@ -224,17 +292,6 @@
   .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
   .btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
 
-  /* ── COL DOT ── */
-  .col-btn { position: relative; }
-  .col-dot {
-    position: absolute; top: 5px; right: 6px;
-    width: 7px; height: 7px; border-radius: 50%;
-  }
-  .col-dot.none  { background: #3a3a48; }
-  .col-dot.bad   { background: #f87171; }
-  .col-dot.mid   { background: #fbbf24; }
-  .col-dot.good  { background: #4ade80; }
-
   /* ── SUMMARY / RESULT ── */
   .summary-stats {
     display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; justify-content: center;
@@ -254,12 +311,22 @@
   .summary-section h4 { font-size: 0.65rem; letter-spacing: 0.14em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
   .summary-kana-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .summary-kana-chip {
-    font-family: 'Noto Sans JP', sans-serif; font-size: 1.6rem; font-weight: 300;
-    width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
-    border-radius: 10px; border: 1px solid var(--border);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 56px; border-radius: 10px; border: 1px solid var(--border);
+    padding: 8px 4px 6px; gap: 4px; position: relative;
+  }
+  .summary-kana-chip .chip-char { font-size: 1.6rem; font-weight: 300; line-height: 1; }
+  .summary-kana-chip .chip-count {
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em;
+    font-family: 'Syne', sans-serif; line-height: 1;
   }
   .summary-kana-chip.worst { color: #f87171; border-color: #f87171; background: rgba(248,113,113,0.07); }
+  .summary-kana-chip.worst .chip-count { color: #f87171; }
+  .summary-kana-chip.unsure-chip { color: #fbbf24; border-color: #fbbf24; background: rgba(251,191,36,0.07); }
+  .summary-kana-chip.unsure-chip .chip-count { color: #fbbf24; }
   .summary-kana-chip.best  { color: #4ade80; border-color: #4ade80; background: rgba(74,222,128,0.07); }
+  .summary-kana-chip.best .chip-count { color: #4ade80; }
   .summary-pb {
     width: 100%; text-align: center; font-size: 0.78rem; color: var(--reveal);
     letter-spacing: 0.08em; padding: 12px; border: 1px solid var(--reveal);
@@ -352,7 +419,7 @@
 
   <div id="col-selector" style="display:none">
     <h3>Escolha as colunas</h3>
-    <div class="col-grid" id="col-grid"></div>
+    <div class="col-table" id="col-grid"></div>
     <div style="display:flex;gap:10px;margin-top:14px;width:100%">
       <button id="col-start-btn" class="btn btn-primary" disabled onclick="startSelectedColumns()" style="flex:1">Iniciar em ordem</button>
       <button id="col-inf-btn" class="btn btn-warn" disabled onclick="startSelectedColumnsInfinite()" style="flex:1">∞ Infinito direto</button>
@@ -406,6 +473,11 @@
   <div class="summary-section" id="summary-worst" style="display:none">
     <h4>Mais errados</h4>
     <div class="summary-kana-row" id="worst-kana"></div>
+  </div>
+
+  <div class="summary-section" id="summary-unsure" style="display:none">
+    <h4>Com dúvida</h4>
+    <div class="summary-kana-row" id="unsure-kana"></div>
   </div>
 
   <div class="summary-section" id="summary-best" style="display:none">
@@ -758,27 +830,55 @@ function showSummary() {
   `;
 
   const chars = Object.entries(s.results);
+
+  // All chars where wrong >= 1, sorted by wrong desc then unsure desc
+  const wrongChars = chars
+    .filter(([, r]) => r.wrong >= 1)
+    .sort((a, b) => b[1].wrong - a[1].wrong || b[1].unsure - a[1].unsure)
+    .map(([char, r]) => ({ char, count: r.wrong }));
+
+  // All chars where unsure >= 1 (and not already in wrongChars list, or include both)
+  // show unsure separately — even chars that also had wrongs appear here if unsure > 0
+  const unsureChars = chars
+    .filter(([, r]) => r.unsure >= 1)
+    .sort((a, b) => b[1].unsure - a[1].unsure || b[1].wrong - a[1].wrong)
+    .map(([char, r]) => ({ char, count: r.unsure }));
+
+  // Best: all right, zero wrong+unsure, sorted by right desc (top 5)
   const scored = chars.map(([char, r]) => {
     const t = r.right + r.unsure + r.wrong || 1;
-    return { char, score: (r.wrong * 3 + r.unsure * 2) / t };
+    return { char, score: (r.wrong * 3 + r.unsure * 2) / t, right: r.right };
   }).sort((a, b) => b.score - a.score);
-
-  const worst = scored.slice(0, 3).filter(x => x.score > 0);
-  const best  = scored.slice(-3).reverse().filter(x => x.score < 1);
+  const best = scored.filter(x => x.score === 0 && x.right > 0).slice(0, 5);
 
   const worstEl = document.getElementById('summary-worst');
-  const bestEl = document.getElementById('summary-best');
-  worstEl.style.display = 'none'; bestEl.style.display = 'none';
+  const unsureEl = document.getElementById('summary-unsure');
+  const bestEl  = document.getElementById('summary-best');
+  worstEl.style.display = 'none';
+  unsureEl.style.display = 'none';
+  bestEl.style.display  = 'none';
 
-  if (worst.length) {
+  function makeChip(cls, char, count, label) {
+    return `<div class="summary-kana-chip ${cls}">
+      <span class="chip-char">${char}</span>
+      <span class="chip-count">${count}× ${label}</span>
+    </div>`;
+  }
+
+  if (wrongChars.length) {
     worstEl.style.display = '';
-    document.getElementById('worst-kana').innerHTML = worst.map(x =>
-      `<span class="summary-kana-chip worst">${x.char}</span>`).join('');
+    document.getElementById('worst-kana').innerHTML =
+      wrongChars.map(x => makeChip('worst', x.char, x.count, 'erro')).join('');
+  }
+  if (unsureChars.length) {
+    unsureEl.style.display = '';
+    document.getElementById('unsure-kana').innerHTML =
+      unsureChars.map(x => makeChip('unsure-chip', x.char, x.count, 'dúvida')).join('');
   }
   if (best.length) {
     bestEl.style.display = '';
-    document.getElementById('best-kana').innerHTML = best.map(x =>
-      `<span class="summary-kana-chip best">${x.char}</span>`).join('');
+    document.getElementById('best-kana').innerHTML =
+      best.map(x => makeChip('best', x.char, x.right, 'certo')).join('');
   }
 
   const pbEl = document.getElementById('summary-pb');
@@ -849,13 +949,21 @@ function goHome() {
   showScreen('home-screen');
 }
 
+function charDominance(char) {
+  const kd = store.kana[char];
+  if (!kd || !kd.history.length) return 'none';
+  const rate = kd.history.filter(r => r === 'right').length / kd.history.length;
+  if (rate >= 0.75) return 'good';
+  if (rate >= 0.45) return 'mid';
+  return 'bad';
+}
+
 function colDominance(col) {
   const chars = col.kana;
-  const known = chars.filter(c => store.kana[c]);
+  const known = chars.filter(c => store.kana[c] && store.kana[c].history.length > 0);
   if (known.length === 0) return 'none';
   const rates = known.map(c => {
     const h = store.kana[c].history;
-    if (!h.length) return 0;
     return h.filter(r => r === 'right').length / h.length;
   });
   const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
@@ -870,20 +978,125 @@ function showColumnSelector() {
   grid.innerHTML = '';
   selectedCols = new Set();
   updateColStartBtn();
-  COLUMNS.forEach((col, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'col-btn';
-    btn.innerHTML = `<span style="font-size:0.58rem;letter-spacing:0.12em;color:var(--text-muted);font-family:'Syne',sans-serif;display:block;margin-bottom:3px">${col.letter}</span>${col.name}`;
-    const dot = document.createElement('span');
-    dot.className = `col-dot ${colDominance(col)}`;
-    btn.appendChild(dot);
-    btn.onclick = () => {
-      if (selectedCols.has(i)) { selectedCols.delete(i); btn.classList.remove('selected'); }
-      else { selectedCols.add(i); btn.classList.add('selected'); }
-      updateColStartBtn();
-    };
-    grid.appendChild(btn);
-  });
+
+  // Detect "both" mode: COLUMNS will have 30 entries (15 hira + 15 kata with ' ひ'/' カ' suffix)
+  const isBoth = selectedScript === 'both';
+
+  if (isBoth) {
+    // Pair up hiragana[i] with katakana[i] (same 行)
+    const hCols = HIRAGANA;
+    const kCols = KATAKANA;
+    hCols.forEach((hCol, i) => {
+      const kCol = kCols[i];
+      // We need the index within COLUMNS for selectedCols tracking
+      // In 'both' mode COLUMNS = [...HIRAGANA mapped, ...KATAKANA mapped], indices 0-14 hira, 15-29 kata
+      const hIdx = i;
+      const kIdx = HIRAGANA.length + i;
+
+      const row = document.createElement('div');
+      row.className = 'col-table-row';
+
+      // letter label
+      const lbl = document.createElement('div');
+      lbl.className = 'col-row-label';
+      lbl.textContent = hCol.letter === '— vogais' ? '—' : hCol.letter;
+      row.appendChild(lbl);
+
+      // clickable button
+      const btn = document.createElement('button');
+      btn.className = 'col-btn';
+
+      // row name (行 name)
+      const nameEl = document.createElement('span');
+      nameEl.className = 'col-row-name';
+      nameEl.textContent = hCol.name.replace(' ひ','');
+      btn.appendChild(nameEl);
+
+      // kana strip: pairs of hira+kata per mora, left→right = a→o
+      const strip = document.createElement('div');
+      strip.className = 'col-kana-strip';
+      hCol.kana.forEach((hChar, j) => {
+        const kChar = kCol.kana[j];
+        const pair = document.createElement('div');
+        pair.className = 'col-kana-pair';
+
+        const hSpan = document.createElement('span');
+        hSpan.className = 'col-kana-char hira';
+        hSpan.textContent = hChar;
+
+        const kSpan = document.createElement('span');
+        kSpan.className = 'col-kana-char kata';
+        kSpan.textContent = kChar;
+
+        pair.appendChild(hSpan);
+        pair.appendChild(kSpan);
+        strip.appendChild(pair);
+      });
+      btn.appendChild(strip);
+
+      // dot based on combined dominance
+      const dot = document.createElement('span');
+      dot.className = `col-dot ${colDominance(hCol)}`;
+      btn.appendChild(dot);
+
+      btn.onclick = () => {
+        const hSel = selectedCols.has(hIdx);
+        if (hSel) {
+          selectedCols.delete(hIdx); selectedCols.delete(kIdx);
+          btn.classList.remove('selected');
+        } else {
+          selectedCols.add(hIdx); selectedCols.add(kIdx);
+          btn.classList.add('selected');
+        }
+        updateColStartBtn();
+      };
+
+      row.appendChild(btn);
+      grid.appendChild(row);
+    });
+  } else {
+    // Single script mode: one row per column
+    COLUMNS.forEach((col, i) => {
+      const row = document.createElement('div');
+      row.className = 'col-table-row';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'col-row-label';
+      lbl.textContent = col.letter === '— vogais' ? '—' : col.letter;
+      row.appendChild(lbl);
+
+      const btn = document.createElement('button');
+      btn.className = 'col-btn';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'col-row-name';
+      nameEl.textContent = col.name;
+      btn.appendChild(nameEl);
+
+      const strip = document.createElement('div');
+      strip.className = 'col-kana-strip';
+      col.kana.forEach(char => {
+        const span = document.createElement('span');
+        span.className = 'col-kana-char';
+        span.textContent = char;
+        strip.appendChild(span);
+      });
+      btn.appendChild(strip);
+
+      const dot = document.createElement('span');
+      dot.className = `col-dot ${colDominance(col)}`;
+      btn.appendChild(dot);
+
+      btn.onclick = () => {
+        if (selectedCols.has(i)) { selectedCols.delete(i); btn.classList.remove('selected'); }
+        else { selectedCols.add(i); btn.classList.add('selected'); }
+        updateColStartBtn();
+      };
+
+      row.appendChild(btn);
+      grid.appendChild(row);
+    });
+  }
 }
 
 function updateColStartBtn() {
@@ -892,7 +1105,9 @@ function updateColStartBtn() {
   const n = selectedCols.size;
   btn.disabled = n === 0;
   infBtn.disabled = n === 0;
-  const label = n === 0 ? '' : ` (${n} coluna${n > 1 ? 's' : ''})`;
+  // In 'both' mode each row selects 2 indices; show logical row count
+  const displayN = selectedScript === 'both' ? n / 2 : n;
+  const label = n === 0 ? '' : ` (${displayN} coluna${displayN > 1 ? 's' : ''})`;
   btn.textContent = `Iniciar em ordem${label}`;
   infBtn.textContent = `∞ Infinito direto${label}`;
 }
