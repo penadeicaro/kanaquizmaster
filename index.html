@@ -953,8 +953,8 @@ function showColumnSelector() {
   const wrap = document.getElementById('col-grid');
   wrap.innerHTML = '';
   if (isMobile()) {
-    buildGojuonGridTransposed(wrap, 'ひ', HIRAGANA, 0);
-    buildGojuonGridTransposed(wrap, 'カ', KATAKANA, HIRAGANA.length);
+    buildGojuonGridTransposed(wrap, 'Hiragana — ひらがな', HIRAGANA, 0);
+    buildGojuonGridTransposed(wrap, 'Katakana — カタカナ', KATAKANA, HIRAGANA.length);
   } else {
     buildGojuonGrid(wrap, 'Hiragana — ひらがな', HIRAGANA, 0);
     buildGojuonGrid(wrap, 'Katakana — カタカナ', KATAKANA, HIRAGANA.length);
