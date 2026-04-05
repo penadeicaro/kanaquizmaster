@@ -387,12 +387,33 @@ function buildCycleQueue(items) {
 }
 
 function insertIntoQueue(item, count) {
-  // remaining = items still in queue AFTER removing current (already done before calling this)
   const remaining = cycleQueue.length;
-  const pos = Math.ceil(remaining / 2);
+  // Garante posição mínima 2 (nunca próximo nem subsequente imediato)
+  const pos = Math.max(2, Math.ceil(remaining / 2));
+
   for (let i = 0; i < count; i++) {
-    cycleQueue.splice(pos + i, 0, {...item});
+    // Cada cópia inserida com espaçamento mínimo de 2 entre si
+    const insertAt = Math.min(pos + i * 2, cycleQueue.length);
+    cycleQueue.splice(insertAt, 0, { ...item });
   }
+}
+
+function buildCycleQueue(items) {
+  let arr = shuffle([...items]);
+  // Garante que nenhum caractere igual fique adjacente no shuffle inicial
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let hasAdj = false;
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i].char === arr[i + 1].char) {
+        hasAdj = true;
+        // Troca o duplicado com um elemento aleatório mais à frente
+        const j = i + 1 + Math.floor(Math.random() * (arr.length - i - 1));
+        [arr[i + 1], arr[j]] = [arr[j], arr[i + 1]];
+      }
+    }
+    if (!hasAdj) break;
+  }
+  return arr;
 }
 
 function initCycle(pool, label, num) {
