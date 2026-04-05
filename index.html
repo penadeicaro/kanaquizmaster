@@ -149,8 +149,30 @@
   .ripple-circle { position:absolute; width:60px; height:60px; border-radius:50%; background:var(--reveal); transform:scale(0); animation:ripple 0.5s ease-out forwards; pointer-events:none; }
 
   @media (max-width:600px) {
-    .kana-card { width:180px; height:180px; }
-    .kana-card .kana-char { font-size:4.5rem; }
+    /* Header bem fino */
+    header { padding:8px 16px; }
+
+    /* Screen com padding compacto */
+    .screen { padding:12px 14px; }
+
+    /* Hero menor e mais compacto */
+    .home-hero { margin-bottom:12px; }
+    .home-hero .hero-kana { font-size:2rem; margin-bottom:6px; }
+    .home-hero h2 { font-size:0.62rem; margin-bottom:2px; }
+    .home-hero p { font-size:0.66rem; }
+
+    /* col-selector sem margin-top extra */
+    #col-selector { margin-top:2px; }
+
+    /* data-actions mais compacto */
+    .data-actions { margin-top:10px; margin-bottom:0; gap:16px; }
+
+    /* Botões estudar/treinar menores */
+    .btn { font-size:0.68rem; padding:9px 16px; }
+
+    /* Kana card */
+    .kana-card { width:160px; height:160px; }
+    .kana-card .kana-char { font-size:4rem; }
 
     /* Dois grids lado a lado */
     #col-grid { display:flex; flex-direction:row; gap:8px; align-items:flex-start; }
@@ -185,7 +207,6 @@
 
     .gojuon-section-label { display:none; }
     .gojuon-wrap { overflow-x:visible; }
-    .home-hero .hero-kana { font-size:2.4rem; }
   }
 </style>
 </head>
